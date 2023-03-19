@@ -37,6 +37,7 @@ Thats it basically, after I managed to get the model and events working, the res
 
 ## Why no environment? (Setbacks)
 
+### Performance Issue
 While trying to use both an AR.js embedded scene in tendem with a normal AFrame scene with many AFrame a-entity(s), I experienced a huge performance hit (i.e. the fps dropped to single digits).
 After much debugging, I managed to discover that it was due to the fact that AR.js renders to the entire html body/scene by default, however that itself was not the issue.
 The real issue I think is because of the way AFrame renders while using the logarithmic depth test which AR.js requires.
@@ -46,6 +47,11 @@ with huge occluding objects like walls/skybox, each pixel will have to do a loga
 to fix it, such as trying to disable the live video render, clearing the depth buffer in between the AR/VR render, disabling depth buffer test, but could not find
 the ways to do so as maybe AFrame's renderer was too high level and not robust enough. Ultimately, I found that the best solution was to remove these huge occluding objects,
 like the classroom walls, and the skybox. This greatly increased my fps from single digits to a stable 50-60 fps, 100 on a good day for my laptop. That is why the I have no classroom model and no skybox.
+
+### Mobile AR Discrepency
+Although the web app can be runned on mobile device in VR mode as I intended, currently the marker positions detected on mobile appear further away then they are in real life.
+There is probably an issue with the way I handled the markers relative to the camera view in VR mode. My ideal goal is to have mobile phones be the pseudo visual device people can use to access a VR environment
+and another pseudo controller device people can use to interact with the VR environment.
 
 ## What I would change or improve
 
