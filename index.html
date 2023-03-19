@@ -1,0 +1,320 @@
+<html>
+  <head>
+    <!-- aframe import -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+
+    <!-- we import arjs version without NFT but with marker + location based support -->
+    <!--     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ar.js/2.2.2/aframe-ar.js"></script>
+    <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+    <!-- my scripts import -->
+    <script src="script.js"></script>
+    <script src="sphere-collider.js"></script>
+    
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  </head>
+  <body>
+    <a-scene
+      embedded
+      arjs="detectionMode: mono_and_matrix; matrixCodeType: 3x3; sourceWidth:1280; sourceHeight: 960;"
+      stats
+      shadow="type: pcf"
+      renderer="logarithmicDepthBuffer: true;"
+    >
+      <!-- load assets -->
+      <a-assets>
+        <!-- lab sky texture -->
+        <!--         <img
+          id="lab"
+          src="https://cdn.glitch.global/3e303cbd-aded-4458-9dbd-58742f67fa57/sky.jpeg?v=1678963027993"
+        /> -->
+
+        <!-- floor texture -->
+        <img
+          id="floor_texture"
+          src="https://cdn.glitch.global/3e303cbd-aded-4458-9dbd-58742f67fa57/floor_texture.jpg?v=1678700251839"
+        />
+
+        <!-- rough metal texture -->
+        <img
+          id="rough_metal"
+          src="https://cdn.glitch.global/3e303cbd-aded-4458-9dbd-58742f67fa57/rough_metal.jfif?v=1678957046954"
+        />
+
+        <!-- load table model -->
+        <a-asset-item
+          id="table"
+          src="https://cdn.glitch.global/3e303cbd-aded-4458-9dbd-58742f67fa57/TableGLTF.gltf?v=1678702609193"
+        ></a-asset-item>
+
+        <!-- load lamp model -->
+        <a-asset-item
+          id="lamp"
+          src="https://cdn.glitch.global/3e303cbd-aded-4458-9dbd-58742f67fa57/lamp.glb?v=1679111663268"
+        ></a-asset-item>
+
+        <!-- load open hand model -->
+        <a-asset-item
+          id="openhand"
+          src="https://cdn.glitch.global/3e303cbd-aded-4458-9dbd-58742f67fa57/open_hand.glb?v=1679155337845"
+        ></a-asset-item>
+
+        <!-- load close hand model -->
+        <a-asset-item
+          id="closehand"
+          src="https://cdn.glitch.global/3e303cbd-aded-4458-9dbd-58742f67fa57/close_hand.glb?v=1679155218826"
+        ></a-asset-item>
+
+        <!-- load classroom model -->
+        <!--         <a-asset-item
+          id="classroom"
+          src="https://cdn.glitch.global/3e303cbd-aded-4458-9dbd-58742f67fa57/classroom_edited.glb?v=1678964160886"
+        ></a-asset-item> -->
+      </a-assets>
+
+      <!-- Define Lights -->
+      <a-light
+        type="directional"
+        light="castShadow: true"
+        position="100 100 50"
+        intensity="0.5"
+        shdadow-camera-automatic="#objects"
+      ></a-light>
+      <a-entity light="type: ambient; color: #222"></a-entity>
+      <!-- light for lamp -->
+      <a-entity
+        light="type: point"
+        color="#222"
+        position="-0.7 1.7 -1.7"
+      ></a-entity>
+
+      <!-- Define Camera -->
+      <a-entity
+        id="camera"
+        camera="active: true"
+        position="0 1.6 4"
+        wasd-controls
+        look-controls
+        cursor-teleport
+      >
+        <!-- Cursor parented to the camera -->
+        <a-entity
+          cursor="fuse: true; fuseTimeout: 500"
+          position="0 0 -0.1"
+          scale="0.01 0.01 0.01"
+          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+          material="color: green; shader: flat"
+        >
+        </a-entity>
+
+        <!-- marker object also parented to camera -->
+        <a-marker type="barcode" value="0">
+          <!-- we use cors proxy to avoid cross-origin problems ATTENTION! you need to set up your server -->
+          <a-entity
+            gltf-model="#closehand"
+            position="0 0 0"
+            scale="0.5 0.5 0.5"
+            shadow="cast: true; receive: true"
+            visible-on-marker-visible="markerId: #buttonMarker; onMarker: false"
+            sphere-collider
+            my-grabber
+          ></a-entity>
+          <a-entity
+            gltf-model="#openhand"
+            position="0 0 0"
+            scale="0.5 0.5 0.5"
+            shadow="cast: true; receive: true"
+            visible-on-marker-visible="markerId: #buttonMarker; onMarker: true"
+          ></a-entity>
+        </a-marker>
+
+        <!-- marker button 1 -->
+        <a-marker
+          id="buttonMarker"
+          type="barcode"
+          value="1"
+          marker-visible
+        ></a-marker>
+      </a-entity>
+
+      <!-- create skybox environment -->
+      <!--       <a-sky src="#lab"></a-sky> -->
+
+      <!-- create floor -->
+      <a-plane
+        id="floor"
+        src="#floor_texture"
+        repeat="10 10"
+        rotation="-90 0 0"
+        width="10"
+        height="10"
+        shadow="receive: true"
+      >
+      </a-plane>
+
+      <!-- create classroom -->
+<!--       <a-entity
+        gltf-model="#classroom"
+        position="0 0.35 10"
+        rotation="0 90 0"
+        scale="0.45 0.45 0.45"
+      ></a-entity> -->
+
+      <!-- create table -->
+      <a-entity
+        gltf-model="#table"
+        position="0 0 -1.5"
+        rotation="0 90 0"
+        scale="1.6 1.6 1.6"
+        shadow="cast: true; receive: true"
+      ></a-entity>
+
+      <!-- create lamp -->
+      <a-entity
+        gltf-model="#lamp"
+        position="-0.8 0.95 -2.0"
+        scale="1 1 1"
+        rotation="0 90 0"
+        shadow="cast: true; receive: true"
+        sphere-collider
+        my-grabbable
+      ></a-entity>
+
+      <!-- create atom as a sphere -->
+      <!--       <a-entity
+        geometry="primitive: sphere; radius: 0.1"
+        position="0 1.5 -1"
+        material="color: red"
+        shadow="cast: true; receive: true"
+        cursor-listener
+        grab-and-move
+        sphere-collider
+        my-grabbable
+      ></a-entity> -->
+<!--       <a-entity
+        gltf-model="#lamp"
+        position="0 1.5 -1"
+        scale="1 1 1"
+        rotation="0 90 0"
+        shadow="cast: true; receive: true"
+        sphere-collider
+        my-grabbable
+      ></a-entity> -->
+
+      <!-- instruction texts -->
+      <a-text
+        value="Welcome to Chemistry XR!"
+        position="-2.5 3.6 -3.6"
+        align="left"
+      ></a-text>
+      <a-text
+        value="_________________________"
+        position="-2.5 3.5 -3.6"
+        align="left"
+      ></a-text>
+
+      <a-text
+        value="Controls:"
+        position="-2.5 3.2 -3.6"
+        scale="0.8 0.8 0.8"
+        align="left"
+      ></a-text>
+      <a-text
+        value="1. Double-click to interact with objects using gaze cursor."
+        position="-2.5 2.95 -3.6"
+        scale="0.5 0.5 0.5"
+        align="left"
+      ></a-text>
+      <a-text
+        value="2. Double-click when gazing at floor position to teleport there."
+        position="-2.5 2.65 -3.6"
+        scale="0.5 0.5 0.5"
+        align="left"
+      ></a-text>
+      <a-text
+        value="3. Double-click when gazing at interactable objects (e.g. atoms) to move."
+        position="-2.5 2.35 -3.6"
+        scale="0.5 0.5 0.5"
+        align="left"
+      ></a-text>
+
+      <a-text
+        value="Fun Stuff:"
+        position="0.1 3.2 -3.6"
+        scale="0.8 0.8 0.8"
+        align="left"
+      ></a-text>
+      <a-text
+        value="1. Try moving atoms close together to see a reaction!"
+        position="0.1 2.95 -3.6"
+        scale="0.5 0.5 0.5"
+        align="left"
+      ></a-text>
+
+      <!-- create atom spawn (Hydrogen) -->
+      <a-box
+        src="#rough_metal"
+        depth="0.2"
+        height="0.2"
+        width="0.2"
+        position="0.8 1.05 -1.5"
+        shadow="cast: true; receive: true"
+        sphere-collider
+        atom-spawner="radius: 0.05; name: H+\n(Ion : Unstable); fullName: h"
+      >
+        <a-troika-text
+          value="Grab Hydrogen!"
+          position="0 0 0.2"
+          scale="0.3 0.3 0.3"
+          align="center"
+        ></a-troika-text>
+      </a-box>
+
+      <!-- create atom spawn (Oxygen) -->
+      <a-box
+        src="#rough_metal"
+        depth="0.2"
+        height="0.2"
+        width="0.2"
+        position="0 1.05 -1.5"
+        shadow="cast: true; receive: true"
+        sphere-collider
+        atom-spawner="radius: 0.0891; name: O^-2\n(Ion : Unstable); color: #89CFF0; fullName: o"
+      >
+        <a-troika-text
+          value="Grab Oxygen!"
+          position="0 0 0.2"
+          scale="0.3 0.3 0.3"
+          align="center"
+        ></a-troika-text>
+      </a-box>
+
+      <!-- create atom spawn (Carbon) -->
+      <a-box
+        src="#rough_metal"
+        depth="0.2"
+        height="0.2"
+        width="0.2"
+        position="-0.8 1.05 -1.5"
+        shadow="cast: true; receive: true"
+        sphere-collider
+        atom-spawner="radius: 0.1041; name: C+6\n(Ion : Unstable); color: #5A5A5A"
+      >
+        <a-troika-text
+          value="Grab Carbon!"
+          position="0 0 0.2"
+          scale="0.3 0.3 0.3"
+          align="center"
+        ></a-troika-text>
+      </a-box>
+      <a-text
+        value="Click Me!\nCreate Carbon"
+        position="-0.8 1.05 -1.4"
+        scale="0.2 0.2 0.2"
+        align="center"
+      ></a-text>
+    </a-scene>
+  </body>
+</html>
